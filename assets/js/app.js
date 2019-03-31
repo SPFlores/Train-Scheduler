@@ -11,16 +11,42 @@ firebase.initializeApp(config)
 
 let db = firebase.firestore()
 
+db.collection('trains').onSnapshot(snap => {
+  document.querySelector('#trainTable').innerHTML = `
+    <caption> Current Train Schedule</caption>
+    <tr>
+      <th>Train Name</th>
+      <th>Destination</th>
+      <th>Frequency (min)</th>
+      <th>Next Arrival</th>
+      <th>Minutes Away</th>
+    </tr>
+  `
+  snap.docs.forEach(doc => {
+    let { name, destination, time, frequency } = doc.data()
+let nextArrival 
+let minutesAway
+
+    let docElem = document.createElement('tr')
+    docElem.innerHTML = `
+         <td>${name}</td>
+         <td>${destination}</td>
+         <td>${frequency}</td>
+         <td></td>
+         <td></td>
+        `
+    document.querySelector('#trainTable').append(docElem)
+  })
+})
+
 document.querySelector('#submitBtn').addEventListener('click', e => {
   e.preventDefault()
   if (document.querySelector('#name').value === '') {
     document.querySelector('#nameFormat').style.display = 'inline'
   } else if (document.querySelector('#destination').value === '') {
     document.querySelector('#destinationFormat').style.display = 'inline'
-  } else if (!(document.querySelector('#time').value).includes(':')) {
+  } else if ((document.querySelector('#time').value).length > 4) {
     document.querySelector('#timeFormat').style.display = 'inline'
-  } else if (isNaN(parseInt(document.querySelector('#frequency').value))) {
-    document.querySelector('#frequencyFormat').style.display = 'inline'
   } else {
     addNewTrain()
     document.querySelector('#nameFormat').style.display = 'none'
@@ -29,34 +55,17 @@ document.querySelector('#submitBtn').addEventListener('click', e => {
     document.querySelector('#destination').value = ''
     document.querySelector('#timeFormat').style.display = 'none'
     document.querySelector('#time').value = ''
-    document.querySelector('#frequencyFormat').style.display = 'none'
     document.querySelector('#frequency').value = ''
   }
 })
 
 const addNewTrain = _ => {
-  console.log('added new train')
-
   let id = db.collection('users').doc().id
 
   db.collection('trains').doc(id).set({
     name: document.querySelector('#name').value,
     destination: document.querySelector('#destination').value,
-    time: moment(`${document.querySelector('#time').value}`, `HH:mm`),
-    frequency: (document.querySelector('#frequency').value)*60000
+    time: moment(`${document.querySelector('#time').value}`, 'hmm').format('HH:mm'),
+    frequency: (document.querySelector('#frequency').value) * 60000
   })
-
-  //   console.log(moment(`${birthday} ${time}`, 'YYYY-MM-DD HH:mm').valueOf())
-  //   console.log(picture)
-
-  //   // console.log(moment(birthday, 'YYYY-MM-DD').format('MMMM Do, YYYY'))
-  //   // console.log(moment(time, 'HH:mm').format('hh:mm a'))
-
-  //   // storage.ref('images').child(`${id}.jpg`) // or
-  //   storage.ref(`images/${id}.jpg`).put(picture)
-
-  //   document.querySelector('#name').value = ''
-  //   document.querySelector('#email').value = ''
-  //   document.querySelector('#birthday').value = ''
-  //   document.querySelector('#time').value = ''
 }

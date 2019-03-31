@@ -21,7 +21,7 @@
 
     <div class="row">
       <div class="col s12 m12 l12 xl12">
-        <table>
+        <table id="trainTable">
           <caption>Current Train Schedule</caption>
           <tr>
             <th>Train Name</th>
@@ -29,13 +29,6 @@
             <th>Frequency (min)</th>
             <th>Next Arrival</th>
             <th>Minutes Away</th>
-          </tr>
-          <tr>
-            <td>Jill</td>
-            <td>Smith</td>
-            <td>50</td>
-            <td>50</td>
-            <td>50</td>
           </tr>
         </table>
       </div>
@@ -63,18 +56,17 @@
           </tr>
           <tr>
             <th>
-              First Train Time (HH:MM):
-              <h6 id="timeFormat" class="red-text">Time is in invalid format, please format in HH:MM format</h6>
+              First Train Time (HHMM):
+              <h6 id="timeFormat" class="red-text">Time is in invalid format, please format in HHMM format</h6>
               <br>
-              <input type="text" name="time" id="time">
+              <input type="number" name="time" id="time">
             </th>
           </tr>
           <tr>
             <th>
               Frequency (min)
-              <h6 id="frequencyFormat" class="red-text">Frequency cannot be blank, please enter a number</h6>
               <br>
-              <input type="text" name="frequency" id="frequency">
+              <input type="number" name="frequency" id="frequency">
             </th>
           </tr>
           <tr>

@@ -11,6 +11,6 @@ caption {
   background: goldenrod
 }
 
-#timeFormat, #nameFormat, #destinationFormat, #frequencyFormat {
+#timeFormat, #nameFormat, #destinationFormat {
   display: none;
 }
