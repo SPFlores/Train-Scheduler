@@ -10,3 +10,7 @@ table {
 caption {
   background: goldenrod
 }
+
+#timeFormat, #nameFormat, #destinationFormat, #frequencyFormat {
+  display: none;
+}

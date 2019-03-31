@@ -14,7 +14,6 @@
   <div class="container">
     <div class="row center-align">
       <div class="col s12 m12 l12 xl12">
-        <!-- big header/title -->
         <h1>Train Schedule</h1>
         <h3>Look up for train times</h3>
       </div>
@@ -49,6 +48,7 @@
           <tr>
             <th>
               Train Name:
+              <h6 id="nameFormat" class="red-text">Name cannot be blank</h6>
               <br>
               <input type="text" name="name" id="name">
             </th>
@@ -56,6 +56,7 @@
           <tr>
             <th>
               Destination:
+              <h6 id="destinationFormat" class="red-text">Destination cannot be blank</h6>
               <br>
               <input type="text" name="destination" id="destination">
             </th>
@@ -63,13 +64,15 @@
           <tr>
             <th>
               First Train Time (HH:MM):
+              <h6 id="timeFormat" class="red-text">Time is in invalid format, please format in HH:MM format</h6>
               <br>
               <input type="text" name="time" id="time">
             </th>
           </tr>
           <tr>
             <th>
-              Frequency
+              Frequency (min)
+              <h6 id="frequencyFormat" class="red-text">Frequency cannot be blank, please enter a number</h6>
               <br>
               <input type="text" name="frequency" id="frequency">
             </th>
@@ -83,7 +86,6 @@
       </div>
     </div>
   </div>
-
 
   <script src="https://www.gstatic.com/firebasejs/5.9.2/firebase.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
