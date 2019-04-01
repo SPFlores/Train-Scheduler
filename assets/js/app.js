@@ -24,9 +24,8 @@ db.collection('trains').onSnapshot(snap => {
   `
   snap.docs.forEach(doc => {
     let { name, destination, time, frequency } = doc.data()
-    let firstArrival = moment(`${time}`, 'HHmm')
+    let firstArrival = moment(`${time}`, 'MM-DD-YY HHmm')
     let rawResult = Math.floor(firstArrival.format('HHmm') - moment().format('HHmm'))
-    let rawResultStr = rawResult.toString()
     let rawResultAbs = Math.abs(rawResult)
     let rawResultAbsStr = rawResultAbs.toString()
     let minutesAgo, nextOffset, minutesAway, nextArrival, numPrev, hours, minutes
@@ -59,8 +58,15 @@ db.collection('trains').onSnapshot(snap => {
         nextOffset = (frequency / 60000) - minutesAgo
         numPrev = Math.ceil(minutesAgo / (frequency / 60000))
         nextArrival = firstArrival.add(`${(frequency / 60000) * numPrev}`, 'm')
-        minutesAway = Math.floor(nextArrival.format('HHmm') - moment().format('HHmm')) -40
+        minutesAway = Math.floor(nextArrival.format('HHmm') - moment().format('HHmm')) - 40
       }
+    } else {
+      nextArrival = firstArrival
+      minutesAway = Math.floor(firstArrival.format('HHmm') - moment().format('HHmm'))
+    }
+
+    if (minutesAway === 0) {
+      minutesAway = 'NOW'
     }
 
     let docElem = document.createElement('tr')
@@ -101,7 +107,7 @@ const addNewTrain = _ => {
   db.collection('trains').doc(id).set({
     name: document.querySelector('#name').value,
     destination: document.querySelector('#destination').value,
-    time: moment(`${document.querySelector('#time').value}`, 'HHmm').format('HHmm'),
+    time: moment(`${document.querySelector('#time').value}`, 'HHmm').format('MM-DD-YY HHmm'),
     frequency: (document.querySelector('#frequency').value) * 60000
   })
 }
