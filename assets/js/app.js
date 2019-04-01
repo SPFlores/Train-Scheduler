@@ -17,6 +17,7 @@ db.collection('trains').onSnapshot(snap => {
     <tr>
       <th>Train Name</th>
       <th>Destination</th>
+      <th>First Train</th>
       <th>Frequency (min)</th>
       <th>Next Arrival</th>
       <th>Minutes Away</th>
@@ -24,25 +25,49 @@ db.collection('trains').onSnapshot(snap => {
   `
   snap.docs.forEach(doc => {
     let { name, destination, time, frequency } = doc.data()
-    let firstArrival = moment(`${time}`, 'HHmm').add(`${frequency}`, 'ms')
+    let firstArrival = moment(`${time}`, 'HHmm')
     let rawResult = Math.floor(firstArrival.format('HHmm') - moment().format('HHmm'))
     let rawResultStr = rawResult.toString()
-    let nextArrival, minutesAway, hours, minutes
+    let rawResultAbs = Math.abs(rawResult)
+    let rawResultAbsStr = rawResultAbs.toString()
+    let nextArrival, minutesAway, minutesAgo, nextOffset, hours, minutes
 
     if (rawResult < 0) {
+      console.log(rawResultAbs)
+      if (rawResultAbs >= 0 && rawResultAbs < 40) {
+        minutesAgo = rawResultAbs
+        nextOffset = (frequency / 60000 ) - minutesAgo
+        console.log(`${minutesAgo} min ago 1`)
+        console.log(`${nextOffset} next offset 1`)
+      } else if (rawResultAbs > 40 && rawResultAbs < 100) {
+        minutesAgo = rawResultAbs - 40
+        console.log(`${minutesAgo} min ago 2`)
+      } else if (rawResultAbs >= 100 && rawResultAbs <= 959) {
+        hours = parseInt(rawResultAbsStr.slice(0, 1) * 60)
+        minutes = parseInt(rawResultAbsStr.slice(1, 3))
+        minutesAgo = hours + minutes
+        console.log(`${minutesAgo} min ago 3`)
+      } else if (rawResultAbs > 959) {
+        hours = parseInt(rawResultAbsStr.slice(0, 2) * 60)
+        minutes = parseInt(rawResultAbsStr.slice(2, 4))
+        minutesAgo = hours + minutes
+        console.log(`${minutesAgo} min ago 4`)
+      }
       // nextArrival = time + (((moment().format('hh:mm a')).subtract(firstArrival)) / frequency ) * frequency
-      console.log('earlier than now')
-      console.log(rawResult)
-      // raw = -125 frequency = 60
-      // if absolute value of rawResult is < frequency, nextArrival += frequency - abs.rawResult HAVE TO CONVERT
-      // nextArrival = 
+      // rawResultsAbs = 53, minutesAgo = 13
+      // if (rawResultAbs < (frequency / 60000)) {
+      //   nextArrival = firstArrival.add((frequency - (minutesAgo * 60000)), 'ms').format('hh:mm a')
+      // }
+
+      // minutesAgo = -125 frequency = 60
+      // nextArrival = firstArrival + (Math.floor(minutesAgo / frequency) * frequency) + (minutesAgo % frequency)
     } else {
       nextArrival = firstArrival.format('hh:mm a')
     }
 
-    if (0 <= rawResult && rawResult < 60) {
+    if (0 <= rawResult && rawResult < 40) {
       minutesAway = rawResult
-    } else if (60 < rawResult && rawResult < 100) {
+    } else if (40 < rawResult && rawResult < 100) {
       minutesAway = rawResult - 40
     } else if (100 <= rawResult && rawResult <= 959) {
       hours = parseInt(rawResultStr.slice(0, 1) * 60)
@@ -58,6 +83,7 @@ db.collection('trains').onSnapshot(snap => {
     docElem.innerHTML = `
          <td>${name}</td>
          <td>${destination}</td>
+         <td>${time}</td>
          <td>${frequency / 60000}</td>
          <td>${nextArrival}</td>
          <td>${minutesAway}</td>
