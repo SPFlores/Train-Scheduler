@@ -52,8 +52,8 @@ db.collection('trains').onSnapshot(snap => {
         nextArrival = firstArrival.add(`${(frequency / 60000) * numPrev}`, 'm')
         minutesAway = Math.floor(nextArrival.format('HHmm') - moment().format('HHmm')) - 40
       } else if (rawResultAbs > 959) {
-        hours = parseInt(rawResultAbsStr.slice(0, 2) * 60)
-        minutes = parseInt(rawResultAbsStr.slice(2, 4))
+        hours = parseInt(rawResultAbsStr.slice(-(rawResultAbsStr.length), -2) * 60)
+        minutes = parseInt(rawResultAbsStr.slice(-2, (rawResultAbsStr.length)))
         minutesAgo = hours + minutes
         nextOffset = (frequency / 60000) - minutesAgo
         numPrev = Math.ceil(minutesAgo / (frequency / 60000))
@@ -62,7 +62,7 @@ db.collection('trains').onSnapshot(snap => {
       }
     } else {
       nextArrival = firstArrival
-      minutesAway = Math.floor(firstArrival.format('HHmm') - moment().format('HHmm'))
+      minutesAway = Math.floor(firstArrival.format('HHmm') - moment().format('HHmm')) - 40
     }
 
     if (minutesAway === 0) {
