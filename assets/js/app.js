@@ -17,7 +17,6 @@ db.collection('trains').onSnapshot(snap => {
     <tr>
       <th>Train Name</th>
       <th>Destination</th>
-      <th>First Train</th>
       <th>Frequency (min)</th>
       <th>Next Arrival</th>
       <th>Minutes Away</th>
@@ -30,62 +29,46 @@ db.collection('trains').onSnapshot(snap => {
     let rawResultStr = rawResult.toString()
     let rawResultAbs = Math.abs(rawResult)
     let rawResultAbsStr = rawResultAbs.toString()
-    let nextArrival, minutesAway, minutesAgo, nextOffset, hours, minutes
+    let minutesAgo, nextOffset, minutesAway, nextArrival, numPrev, hours, minutes
 
     if (rawResult < 0) {
-      console.log(rawResultAbs)
       if (rawResultAbs >= 0 && rawResultAbs < 40) {
         minutesAgo = rawResultAbs
-        nextOffset = (frequency / 60000 ) - minutesAgo
-        console.log(`${minutesAgo} min ago 1`)
-        console.log(`${nextOffset} next offset 1`)
+        nextOffset = (frequency / 60000) - minutesAgo
+        numPrev = Math.ceil(minutesAgo / (frequency / 60000))
+        nextArrival = firstArrival.add(`${(frequency / 60000) * numPrev}`, 'm')
+        minutesAway = Math.floor(nextArrival.format('HHmm') - moment().format('HHmm'))
       } else if (rawResultAbs > 40 && rawResultAbs < 100) {
+        nextOffset = (frequency / 60000) - minutesAgo
         minutesAgo = rawResultAbs - 40
-        console.log(`${minutesAgo} min ago 2`)
+        numPrev = Math.ceil(minutesAgo / (frequency / 60000))
+        nextArrival = firstArrival.add(`${(frequency / 60000) * numPrev}`, 'm')
+        minutesAway = Math.floor(nextArrival.format('HHmm') - moment().format('HHmm')) - 40
       } else if (rawResultAbs >= 100 && rawResultAbs <= 959) {
         hours = parseInt(rawResultAbsStr.slice(0, 1) * 60)
         minutes = parseInt(rawResultAbsStr.slice(1, 3))
         minutesAgo = hours + minutes
-        console.log(`${minutesAgo} min ago 3`)
+        nextOffset = (frequency / 60000) - minutesAgo
+        numPrev = Math.ceil(minutesAgo / (frequency / 60000))
+        nextArrival = firstArrival.add(`${(frequency / 60000) * numPrev}`, 'm')
+        minutesAway = Math.floor(nextArrival.format('HHmm') - moment().format('HHmm')) - 40
       } else if (rawResultAbs > 959) {
         hours = parseInt(rawResultAbsStr.slice(0, 2) * 60)
         minutes = parseInt(rawResultAbsStr.slice(2, 4))
         minutesAgo = hours + minutes
-        console.log(`${minutesAgo} min ago 4`)
+        nextOffset = (frequency / 60000) - minutesAgo
+        numPrev = Math.ceil(minutesAgo / (frequency / 60000))
+        nextArrival = firstArrival.add(`${(frequency / 60000) * numPrev}`, 'm')
+        minutesAway = Math.floor(nextArrival.format('HHmm') - moment().format('HHmm')) -40
       }
-      // nextArrival = time + (((moment().format('hh:mm a')).subtract(firstArrival)) / frequency ) * frequency
-      // rawResultsAbs = 53, minutesAgo = 13
-      // if (rawResultAbs < (frequency / 60000)) {
-      //   nextArrival = firstArrival.add((frequency - (minutesAgo * 60000)), 'ms').format('hh:mm a')
-      // }
-
-      // minutesAgo = -125 frequency = 60
-      // nextArrival = firstArrival + (Math.floor(minutesAgo / frequency) * frequency) + (minutesAgo % frequency)
-    } else {
-      nextArrival = firstArrival.format('hh:mm a')
-    }
-
-    if (0 <= rawResult && rawResult < 40) {
-      minutesAway = rawResult
-    } else if (40 < rawResult && rawResult < 100) {
-      minutesAway = rawResult - 40
-    } else if (100 <= rawResult && rawResult <= 959) {
-      hours = parseInt(rawResultStr.slice(0, 1) * 60)
-      minutes = parseInt(rawResultStr.slice(1, 3))
-      minutesAway = hours + minutes
-    } else if (rawResult > 959) {
-      hours = parseInt(rawResultStr.slice(0, 2) * 60)
-      minutes = parseInt(rawResultStr.slice(2, 4))
-      minutesAway = hours + minutes
     }
 
     let docElem = document.createElement('tr')
     docElem.innerHTML = `
          <td>${name}</td>
          <td>${destination}</td>
-         <td>${time}</td>
          <td>${frequency / 60000}</td>
-         <td>${nextArrival}</td>
+         <td>${nextArrival.format('hh:mm a')}</td>
          <td>${minutesAway}</td>
         `
     document.querySelector('#trainTable').append(docElem)
