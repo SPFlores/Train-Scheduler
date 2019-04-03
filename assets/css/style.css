@@ -1,16 +1,27 @@
 body {
-  background: lightgray;
+  background:  lightgray;
 }
 
 table {
-  /* width: 100%; */
-  background: darkolivegreen
+  padding-top: 10px;
 }
 
 caption {
-  background: goldenrod
+  padding: 10px;
+  align-content: center;
+  font: 1.2rem;
+}
+
+caption {
+  height: 35px;
 }
 
 #timeFormat, #nameFormat, #destinationFormat {
   display: none;
+}
+
+@media only screen and (min-width: 360px) {
+  .flow-text {
+    font-size: 1rem
+  }
 }
