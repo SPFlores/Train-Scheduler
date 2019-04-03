@@ -26,82 +26,59 @@ db.collection('trains').onSnapshot(snap => {
     let { name, destination, time, frequency } = doc.data()
     let firstArrival = moment(`${time}`, 'HHmm')
     let rawResult = Math.floor(firstArrival.format('HHmm') - moment().format('HHmm'))
+    let rawResultStr = rawResult.toString()
     let rawResultAbs = Math.abs(rawResult)
     let rawResultAbsStr = rawResultAbs.toString()
     let minutesAgo, nextOffset, minutesAway, nextArrival, numPrev, hours, minutes
-    console.log(firstArrival.format('HHmm'))
     console.log(rawResult)
 
     if (rawResult < 0) {
-      if (rawResultAbs >= 0 && rawResultAbs < 40) {
+      if (rawResultAbs >= 0 && rawResultAbs <= (frequency / 60000)) {
         minutesAgo = rawResultAbs
-        nextOffset = (frequency / 60000) - minutesAgo
+        nextOffset = (frequency / 60000) - Math.abs(minutesAgo)
         nextArrival = moment().add(`${nextOffset}`, 'm')
-        minutesAway = Math.floor(nextArrival.format('HHmm') - moment().format('HHmm')) - 40
-      } else if (rawResultAbs > 40 && rawResultAbs < 100) {
-        minutesAgo = rawResultAbs - 40
-        // nextOffset = (frequency / 60000) - minutesAgo
-        nextOffset = minutesAgo % (frequency / 60000)
-        numPrev = Math.ceil(minutesAgo / (frequency / 60000))
-        // nextArrival = firstArrival.add(`${(frequency / 60000) * numPrev}`, 'm')
-        nextArrival = moment().add(`${(frequency / 60000) - nextOffset}`, 'm')
-        minutesAway = Math.floor(nextArrival.format('HHmm') - moment().format('HHmm'))
+      } else if (rawResultAbs > (frequency / 60000) && rawResultAbs < 100) {
+        minutesAgo = rawResultAbs
+        nextOffset = (frequency / 60000) - (minutesAgo % (frequency / 60000))
+        nextArrival = moment().add(`${nextOffset}`, 'm')
       } else if (rawResultAbs >= 100 && rawResultAbs <= 959) {
-        hours = parseInt(rawResultAbsStr.slice(0, 1) * 60) - 1
-        minutes = parseInt(rawResultAbsStr.slice(1, 3))
-        if (hours < 0) {
-          minutesAgo = minutes
-        } else if (hours > 0) {
-          minutesAgo = hours + minutes
-        }
-        // nextOffset = (frequency / 60000) - minutesAgo
-        nextOffset = minutesAgo % (frequency / 60000)
-        // numPrev = Math.ceil(minutesAgo / (frequency / 60000))
-        // nextArrival = firstArrival.add(`${(frequency / 60000) * numPrev}`, 'm')
-        nextArrival = moment().add(`${(frequency / 60000) - nextOffset}`, 'm')
-        minutesAway = Math.floor(nextArrival.format('HHmm') - moment().format('HHmm')) - 40
-      } else if (rawResultAbs > 959) {
-        hours = parseInt(rawResultAbsStr.slice(-(rawResultAbsStr.length), -2) * 60)
-        minutes = parseInt(rawResultAbsStr.slice(-2, (rawResultAbsStr.length)))
-        minutesAgo = hours + minutes
-        nextOffset = (frequency / 60000) - minutesAgo
-        numPrev = Math.ceil(minutesAgo / (frequency / 60000))
-        nextArrival = firstArrival.add(`${(frequency / 60000) * numPrev}`, 'm')
-        minutesAway = Math.floor(nextArrival.format('HHmm') - moment().format('HHmm')) - 40
-      }
-    } else if (rawResult > 0) {
-      console.log(`raw result: ${rawResult}`)
-      if (rawResult >= 0 && rawResult < 40) {
-        minutesAgo = rawResult
-        nextOffset = (frequency / 60000) - minutesAgo
-        numPrev = Math.ceil(minutesAgo / (frequency / 60000))
-        nextArrival = firstArrival.add(`${(frequency / 60000) * numPrev}`, 'm')
-        minutesAway = Math.floor(nextArrival.format('HHmm') - moment().format('HHmm'))
-      } else if (rawResult > 40 && rawResult < 100) {
-        nextOffset = (frequency / 60000) - minutesAgo
-        minutesAgo = rawResult - 40
-        numPrev = Math.ceil(minutesAgo / (frequency / 60000))
-        nextArrival = firstArrival.add(`${(frequency / 60000) * numPrev}`, 'm')
-        minutesAway = Math.floor(nextArrival.format('HHmm') - moment().format('HHmm')) - 40
-      } else if (rawResult >= 100 && rawResult <= 959) {
         hours = parseInt(rawResultAbsStr.slice(0, 1) * 60)
         minutes = parseInt(rawResultAbsStr.slice(1, 3))
         minutesAgo = hours + minutes
-        nextOffset = (frequency / 60000) - minutesAgo
-        numPrev = Math.ceil(minutesAgo / (frequency / 60000))
-        nextArrival = firstArrival.add(`${(frequency / 60000) * numPrev}`, 'm')
-        minutesAway = Math.floor(nextArrival.format('HHmm') - moment().format('HHmm')) - 40
-      } else if (rawResult > 959) {
-        hours = parseInt(rawResultAbsStr.slice(-(rawResultAbsStr.length), -2) * 60)
-        minutes = parseInt(rawResultAbsStr.slice(-2, (rawResultAbsStr.length)))
+        nextOffset = (frequency / 60000) - (minutesAgo % (frequency / 60000))
+        nextArrival = moment().add(`${nextOffset}`, 'm')
+      } else if (rawResultAbs > 959) {
+        hours = parseInt(rawResultAbsStr.slice(0, -2) * 60)
+        minutes = parseInt(rawResultAbsStr.slice(-2, rawResultAbsStr.length))
         minutesAgo = hours + minutes
-        nextOffset = (frequency / 60000) - minutesAgo
-        numPrev = Math.ceil(minutesAgo / (frequency / 60000))
-        nextArrival = firstArrival.add(`${(frequency / 60000) * numPrev}`, 'm')
-        minutesAway = Math.floor(nextArrival.format('HHmm') - moment().format('HHmm')) - 40
+        nextOffset = (frequency / 60000) - (minutesAgo % (frequency / 60000))
+        nextArrival = moment().add(`${nextOffset}`, 'm')
       }
-      // nextArrival = firstArrival
-      // minutesAway = Math.floor(firstArrival.format('HHmm') - moment().format('HHmm')) - 40
+    } else if (rawResult > 0) {
+      if (rawResult >= 0 && rawResult < (frequency / 60000)) {
+        minutesAgo = rawResult
+        nextOffset = (frequency / 60000) - Math.abs(minutesAgo)
+        nextArrival = moment().add(`${nextOffset}`, 'm')
+      } else if (rawResult > (frequency / 60000) && rawResult < 100) {
+        minutesAgo = rawResult
+        nextOffset = (frequency / 60000) - (minutesAgo % (frequency / 60000))
+        nextArrival = firstArrival.add(`${(frequency / 60000) * numPrev}`, 'm')
+      } else if (rawResult >= 100 && rawResult <= 959) {
+        hours = parseInt(rawResult.slice(0, 1) * 60)
+        minutes = parseInt(rawResultStr.slice(1, 3))
+        minutesAgo = hours + minutes
+        nextOffset = (frequency / 60000) - (minutesAgo % (frequency / 60000))
+        nextArrival = moment().add(`${nextOffset}`, 'm')
+      } else if (rawResult > 959) {
+        hours = parseInt(rawResultStr.slice(0, -2) * 60)
+        minutes = parseInt(rawResultStr.slice(-2, rawResultStr.length))
+        console.log(hours)
+        console.log(minutes)
+        minutesAgo = hours + minutes
+        console.log(minutesAgo)
+        nextOffset = (frequency / 60000) - (minutesAgo % (frequency / 60000))
+        nextArrival = moment().add(`${nextOffset}`, 'm')
+      }
     }
 
     if (minutesAway === 0) {
@@ -114,8 +91,8 @@ db.collection('trains').onSnapshot(snap => {
          <td>${destination}</td>
          <td>${frequency / 60000}</td>
          <td>${nextArrival.format('hh:mm a')}</td>
-         <td>${minutesAway}</td>
-        `
+         <td>${nextOffset}</td>
+         `
     document.querySelector('#trainTable').append(docElem)
   })
 })
